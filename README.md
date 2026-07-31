@@ -18,6 +18,10 @@ Looking for deployment tooling? The companion CLI lives at
 [mikegc-aws/mvm-cli](https://github.com/mikegc-aws/mvm-cli) — it zips your
 app and builds the MicroVM image server-side (no docker required).
 
+**Other languages** (previews; this repo is the reference implementation):
+[TypeScript/Node](https://github.com/mikegc-aws/microvm-app-js) ·
+[Go](https://github.com/mikegc-aws/microvm-app-go)
+
 ## The 30-second version
 
 ```python
