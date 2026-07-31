@@ -8,13 +8,13 @@ version = "0.1.0"
 description = "Zero-dependency Python framework for AWS Lambda MicroVMs: lifecycle hook decorators and a lightweight web server."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "Mike G Chambers" }]
 keywords = ["aws", "lambda", "microvm", "serverless", "firecracker"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
