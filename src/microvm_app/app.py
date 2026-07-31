@@ -1,6 +1,6 @@
 """MicroVMApp — a tiny, zero-dependency web framework for AWS Lambda MicroVMs.
 
-Mirrors the ergonomics of ``bedrock_agentcore.BedrockAgentCoreApp``:
+Usage:
 
     from microvm_app import MicroVMApp
 
@@ -176,7 +176,7 @@ class MicroVMApp:
     # Traffic routing
     # ------------------------------------------------------------------
     def entrypoint(self, func: Callable) -> Callable:
-        """Catch-all handler for inbound traffic (AgentCore-style).
+        """Catch-all handler for inbound traffic.
 
         Receives a :class:`Request`. Whatever it returns is serialized
         (dict/list -> JSON, str -> text, Response -> as-is).
@@ -332,8 +332,8 @@ class MicroVMApp:
             except KeyboardInterrupt:
                 self.shutdown()
 
-    # AgentCore users expect app.run() to start the server; here `run` is a
-    # decorator, so `start` and `serve` are aliases for launching.
+    # `run` is taken by the lifecycle decorator, so `start` and `serve`
+    # are the aliases for launching the server.
     start = serve
 
     def shutdown(self) -> None:

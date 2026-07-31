@@ -1,10 +1,18 @@
 # microvm-app
 
-A zero-dependency Python framework for **AWS Lambda MicroVMs**, modeled on the
-ergonomics of the Bedrock AgentCore SDK (`BedrockAgentCoreApp`). Decorate
-functions with `@app.run`, `@app.resume`, etc., and it serves the MicroVM
-lifecycle hook endpoints plus your application traffic on a lightweight
-stdlib web server.
+A zero-dependency Python framework for **AWS Lambda MicroVMs**.
+
+Lambda drives a MicroVM's lifecycle by calling HTTP hook endpoints your
+application must expose — specific POST paths, specific ports, specific
+status-code semantics. Getting that plumbing right means reading the hook
+spec and standing up a web server before you write a line of business logic.
+
+This library removes that work. Decorate a function with `@app.run` and it
+becomes your VM's startup hook; add `@app.entrypoint` for your application
+traffic; call `app.serve()`. The library serves all the lifecycle hook
+endpoints and your app on a lightweight stdlib web server — correct paths,
+ports, and status codes included, with sensible defaults for every hook you
+don't implement.
 
 Looking for deployment tooling? The companion CLI lives at
 [mikegc-aws/mvm-cli](https://github.com/mikegc-aws/mvm-cli) — it zips your
@@ -57,7 +65,7 @@ correctly blocks traffic/build for run/ready/validate).
 ## Traffic handling
 
 ```python
-@app.entrypoint          # catch-all, AgentCore style
+@app.entrypoint          # catch-all handler
 def handler(request):    # request.method/.path/.headers/.query/.json()/.text
     return {"any": "json"}          # dict/list -> JSON
     # or "text", 204, (201, {...}), b"bytes", Response(418, "teapot")

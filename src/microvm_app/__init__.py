@@ -2,7 +2,7 @@
 
 Two styles are supported.
 
-App style (mirrors bedrock_agentcore's BedrockAgentCoreApp):
+App style:
 
     from microvm_app import MicroVMApp
 
