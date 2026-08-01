@@ -135,3 +135,8 @@ pip install -e ".[dev]" && pytest
   timeout), and `@app.post("/invocations")` runs the agent loop as ordinary
   app traffic with no hook timeout. Conversation history lives in process
   memory and survives suspend/resume.
+- [`examples/strands-agent`](examples/strands-agent/) — the same pattern
+  with a real [Strands Agents](https://strandsagents.com) agent calling
+  Claude on Amazon Bedrock, including a custom tool the agent uses to
+  report on its own MicroVM. Deployed and verified end-to-end: model calls,
+  tool use, and conversation memory across suspend/resume.

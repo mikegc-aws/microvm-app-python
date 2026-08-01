@@ -9,3 +9,4 @@ build/
 .mypy_cache/
 *.whl
 .DS_Store
+examples/*/mvm.json
