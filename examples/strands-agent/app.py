@@ -44,7 +44,14 @@ DEFAULT_SYSTEM_PROMPT = (
 def microvm_status() -> dict:
     """Report the status of the MicroVM this agent is running in:
     its unique agent id, uptime in seconds, and how many times it has
-    been suspended and resumed."""
+    been suspended and resumed.
+
+    DEMO ONLY — do not ship a tool like this in production. It hands
+    anyone who can reach the endpoint a way to enumerate infrastructure
+    internals (instance identity, uptime, lifecycle history) through the
+    model. Real agent tools should expose task capabilities, not
+    introspection of the runtime they happen to be running on.
+    """
     return {
         "agent_id": STATE["agent_id"],
         "uptime_seconds": round(time.time() - STATE["started_at"], 1),

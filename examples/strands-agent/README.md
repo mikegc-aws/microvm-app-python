@@ -15,6 +15,14 @@ The split:
 The agent has one custom tool, `microvm_status`, so you can ask it about its
 own VM (uptime, resume count, turns held in memory).
 
+> ⚠️ **`microvm_status` is demo code — don't build tools like it for
+> production.** It exists purely to make the suspend/resume behavior
+> visible in the agent's answers. In a real deployment it would let any
+> caller enumerate infrastructure internals through the model, and
+> instance identity is exactly the kind of value that must never be baked
+> into a snapshot or echoed back to users. Production tools should expose
+> task capabilities (search, lookup, act), not runtime introspection.
+
 ## Run locally
 
 Uses your local AWS credentials for Amazon Bedrock:

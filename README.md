@@ -137,6 +137,7 @@ pip install -e ".[dev]" && pytest
   memory and survives suspend/resume.
 - [`examples/strands-agent`](examples/strands-agent/) — the same pattern
   with a real [Strands Agents](https://strandsagents.com) agent calling
-  Claude on Amazon Bedrock, including a custom tool the agent uses to
-  report on its own MicroVM. Deployed and verified end-to-end: model calls,
-  tool use, and conversation memory across suspend/resume.
+  Claude on Amazon Bedrock, including a demo-only custom tool the agent
+  uses to report on its own MicroVM (illustrative — see the example's
+  README before copying it). Deployed and verified end-to-end: model
+  calls, tool use, and conversation memory across suspend/resume.
