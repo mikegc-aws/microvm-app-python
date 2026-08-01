@@ -7,12 +7,12 @@ application must expose — specific POST paths, specific ports, specific
 status-code semantics. Getting that plumbing right means reading the hook
 spec and standing up a web server before you write a line of business logic.
 
-This library removes that work. Decorate a function with `@app.run` and it
-becomes your VM's startup hook; add `@app.entrypoint` for your application
-traffic; call `app.serve()`. The library serves all the lifecycle hook
-endpoints and your app on a lightweight stdlib web server — correct paths,
-ports, and status codes included, with sensible defaults for every hook you
-don't implement.
+This library removes that work. Decorate a function with `@app.startup` and
+it becomes your VM's instance-start hook; add `@app.entrypoint` for your
+application traffic; call `app.serve()`. The library serves all the
+lifecycle hook endpoints and your app on a lightweight stdlib web server —
+correct paths, ports, and status codes included, with sensible defaults for
+every hook you don't implement.
 
 Looking for deployment tooling? The companion CLI lives at
 [mikegc-aws/mvm-cli](https://github.com/mikegc-aws/mvm-cli) — it zips your
@@ -30,8 +30,8 @@ from microvm_app import MicroVMApp
 
 app = MicroVMApp()
 
-@app.run
-def on_run(ctx):
+@app.startup
+def on_startup(ctx):
     print(f"MicroVM {ctx.microvm_id} started, payload: {ctx.payload}")
 
 @app.entrypoint
@@ -42,6 +42,17 @@ if __name__ == "__main__":
     app.serve()
 ```
 
+### A note on the name: `@app.startup` vs `@app.run`
+
+They are the **same hook** — use whichever you prefer. Lambda's name for it
+is `run`: the endpoint is `/aws/lambda-microvms/runtime/v1/run`, and "run"
+is what you'll see in the AWS docs, in hook configuration
+(`microvmHooks.run`), and in CloudWatch logs. This library adds `startup`
+as an alias because the handler's *job* is per-instance initialization —
+and because in some SDKs `app.run()` means "start the server," which this
+decorator emphatically does not. When debugging, remember: your code says
+`startup`, the platform's logs say `run`.
+
 ## How Lambda MicroVMs work (what this library maps onto)
 
 - Lambda calls **lifecycle hooks** as `POST` requests on
@@ -51,13 +62,13 @@ if __name__ == "__main__":
   to port **8080** by default (`X-aws-proxy-port` header overrides).
 - Traffic is only forwarded **after your `/run` hook returns 200**.
 - Images are snapshots: a VM starts from pre-initialized memory+disk state, so
-  anything unique (IDs, seeds, credentials) must be generated in `@app.run`.
+  anything unique (IDs, seeds, credentials) must be generated in `@app.startup`.
 
 | Decorator | Hook | When |
 |---|---|---|
 | `@app.ready` | `/ready` | During image build — return `False` for 503 ("not ready, retry"), truthy/`None` when snapshot-ready |
 | `@app.validate` | `/validate` | After build, on a fresh VM. Exercise real code paths here — Lambda prefetches the snapshot pages you touch |
-| `@app.run` | `/run` | VM started. Receives `RunContext` with `microvm_id` and the `--run-hook-payload` string (`ctx.payload_json()` parses it) |
+| `@app.startup` (alias: `@app.run`) | `/run` | VM started. Receives `RunContext` with `microvm_id` and the `--run-hook-payload` string (`ctx.payload_json()` parses it) |
 | `@app.resume` | `/resume` | VM resumed from suspend — refresh credentials, reconnect |
 | `@app.suspend` | `/suspend` | Before suspend — flush writes, close connections |
 | `@app.terminate` | `/terminate` | Before terminate — final cleanup |
@@ -82,10 +93,10 @@ def health(request):
 Module-style also works for tiny scripts:
 
 ```python
-from microvm_app import run, entrypoint, serve
+from microvm_app import startup, entrypoint, serve
 
-@run
-def on_run(ctx): ...
+@startup
+def on_startup(ctx): ...
 
 @entrypoint
 def handler(request): ...

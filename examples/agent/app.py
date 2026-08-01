@@ -2,8 +2,9 @@
 
 The split that matters:
 
-- @app.run (port 9000, 1-60s timeout) is the handshake, not the work.
+- @app.startup (port 9000, 1-60s timeout) is the handshake, not the work.
   It receives the agent's identity/task context and returns immediately.
+  (startup is an alias of @app.run — "run" is Lambda's name for the hook.)
 - @app.post("/invocations") (port 8080, no hook timeout) is where the
   agent actually thinks. Each invocation is ordinary app traffic.
 
@@ -20,15 +21,15 @@ from microvm_app import MicroVMApp
 app = MicroVMApp()
 
 SESSION = {
-    "agent_id": None,      # per-VM unique — generated in @app.run, never at build time
+    "agent_id": None,      # per-VM unique — generated at startup, never at build time
     "task": None,          # delivered via the run-hook payload
     "history": [],         # process memory IS the agent's memory; survives suspend/resume
     "resumes": 0,
 }
 
 
-@app.run
-def on_run(ctx):
+@app.startup
+def on_startup(ctx):
     # Cheap identity work only — this hook has a 1-60 second timeout and
     # traffic doesn't flow until it returns 200. No model calls here.
     SESSION["agent_id"] = str(uuid.uuid4())

@@ -6,8 +6,8 @@ Usage:
 
     app = MicroVMApp()
 
-    @app.run
-    def on_run(ctx):
+    @app.startup          # alias of @app.run — Lambda's name for this hook
+    def on_startup(ctx):
         print("MicroVM", ctx.microvm_id, "started with payload", ctx.payload)
 
     @app.entrypoint
@@ -144,13 +144,30 @@ class MicroVMApp:
             return register(func)
         return register
 
-    def run(self, func: Optional[Callable] = None):
+    def startup(self, func: Optional[Callable] = None):
         """Hook invoked when a MicroVM starts from the image snapshot.
 
-        Handler receives a :class:`RunContext` (microvm_id, payload).
-        External traffic is only forwarded after this hook returns 200.
+        This is the recommended decorator for per-instance initialization:
+        generate unique values (IDs, seeds, secrets), record the identity
+        and task context Lambda delivers, and return quickly — the hook
+        has a 1-60 second timeout and external traffic is only forwarded
+        after it returns 200. Defer expensive work (DB connections, model
+        calls) to your request handlers.
+
+        The handler receives a :class:`RunContext` (microvm_id, payload,
+        payload_json()).
+
+        ``@app.startup`` and ``@app.run`` are the same hook. Lambda calls
+        it ``run`` (the endpoint is ``/aws/lambda-microvms/runtime/v1/run``
+        and that's the name you'll see in AWS docs, CloudWatch logs, and
+        hook configuration); ``startup`` is the alias that says what the
+        handler is for. Use whichever reads better — registering both is
+        an error only in the sense that the second registration wins.
         """
         return self._hook_decorator("run", func)
+
+    # Alias: same hook under the platform's name. See startup() docstring.
+    run = startup
 
     def resume(self, func: Optional[Callable] = None):
         """Hook invoked when a MicroVM resumes from the suspended state."""

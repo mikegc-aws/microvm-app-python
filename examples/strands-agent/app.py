@@ -2,9 +2,10 @@
 
 Pattern:
 
-- @app.run (port 9000, 1-60s hook timeout) is the handshake: it receives
-  per-VM identity and the agent's system prompt / task via the run-hook
-  payload, and constructs the Agent object. Cheap — no model calls here.
+- @app.startup (port 9000, 1-60s hook timeout) is the handshake: it
+  receives per-VM identity and the agent's system prompt / task via the
+  run-hook payload, and constructs the Agent object. Cheap — no model
+  calls here. (startup is an alias of @app.run, Lambda's name for the hook.)
 - @app.post("/invocations") (port 8080, no hook timeout) runs agent turns
   as ordinary app traffic. The Strands Agent object holds the conversation
   history in process memory, so it survives suspend/resume — the MicroVM
@@ -28,7 +29,7 @@ from microvm_app import MicroVMApp
 app = MicroVMApp()
 
 STATE = {
-    "agent": None,        # built per-VM in @app.run — never at build time
+    "agent": None,        # built per-VM in @app.startup — never at build time
     "agent_id": None,
     "started_at": None,
     "resumes": 0,
@@ -70,8 +71,8 @@ def build_agent(system_prompt: str) -> Agent:
     )
 
 
-@app.run
-def on_run(ctx):
+@app.startup
+def on_startup(ctx):
     # Identity and configuration only — the run hook has a 1-60s timeout
     # and traffic doesn't flow until it returns. Constructing the Agent
     # makes no network calls; the first model call happens per-invocation.

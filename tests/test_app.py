@@ -104,6 +104,35 @@ class TestHookDispatch:
 
         assert app._hooks["run"] is on_run
 
+    def test_startup_is_alias_of_run(self):
+        # @app.startup registers the same hook Lambda calls "run".
+        app = MicroVMApp()
+        seen = {}
+
+        @app.startup
+        def on_startup(ctx):
+            seen["id"] = ctx.microvm_id
+
+        assert app._hooks["run"] is on_startup
+        body = json.dumps({"microvmId": "mvm-alias"})
+        response = app.handle(make_request(path=hook_path("run"), body=body.encode()))
+        assert response.status == 200
+        assert seen == {"id": "mvm-alias"}
+
+    def test_startup_and_run_share_registration(self):
+        # Last registration wins — they are one slot, not two hooks.
+        app = MicroVMApp()
+
+        @app.startup
+        def first(ctx):
+            return None
+
+        @app.run
+        def second(ctx):
+            return None
+
+        assert app._hooks["run"] is second
+
     def test_async_handler(self):
         app = MicroVMApp()
 
@@ -271,5 +300,7 @@ def test_module_level_api():
     import microvm_app
 
     assert callable(microvm_app.run)
+    assert callable(microvm_app.startup)
+    assert microvm_app.startup is microvm_app.run
     assert callable(microvm_app.entrypoint)
     assert microvm_app.default_app is not None

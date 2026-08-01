@@ -33,15 +33,15 @@ def on_validate():
     return True
 
 
-@app.run
-def on_run(ctx):
+@app.startup  # alias of @app.run — Lambda's name for this hook
+def on_startup(ctx):
     # Values baked into the snapshot are shared by every VM from this image,
     # so anything unique is generated here.
     STATE["instance_id"] = str(uuid.uuid4())
     STATE["started_at"] = time.time()
     payload = ctx.payload_json() if ctx.payload else None
     STATE["tenant"] = (payload or {}).get("tenant", "anonymous")
-    print(f"run hook: microvm={ctx.microvm_id} tenant={STATE['tenant']}")
+    print(f"startup (run) hook: microvm={ctx.microvm_id} tenant={STATE['tenant']}")
 
 
 @app.resume
