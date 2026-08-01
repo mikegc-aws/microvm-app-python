@@ -125,9 +125,13 @@ curl localhost:8080/
 pip install -e ".[dev]" && pytest
 ```
 
-## Example
+## Examples
 
-See [`examples/hello`](examples/hello/app.py) for a full lifecycle app
-(all six hooks, per-VM unique state, health route). Deployed end-to-end it
-answers with its per-instance ID, tenant from the run payload, and resume
-count.
+- [`examples/hello`](examples/hello/app.py) — full lifecycle app (all six
+  hooks, per-VM unique state, health route). Deployed end-to-end it answers
+  with its per-instance ID, tenant from the run payload, and resume count.
+- [`examples/agent`](examples/agent/app.py) — an agent-shaped app: the run
+  hook receives the agent's task context (cheap, within the 60s hook
+  timeout), and `@app.post("/invocations")` runs the agent loop as ordinary
+  app traffic with no hook timeout. Conversation history lives in process
+  memory and survives suspend/resume.
